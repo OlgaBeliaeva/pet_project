@@ -1,58 +1,48 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import './Header.css';
+import logo from '../../assets/logo.svg';
+import cart_icon from '../../assets/icon.svg'; 
+import { ThemeToggleButton } from '../Theme';
 
 const Header = () => {
-    const cartItemsCount = useSelector((state) => state.cart.items.length); // Измените путь в зависимости от вашего состояния Redux
 
-    return (
-        <header style={styles.header}>
-            <Link to="/">
-                <img src="/path/to/logo.png" alt="Logo" style={styles.logo} />
-            </Link>
-            <nav style={styles.nav}>
-                <Link to="/">Главная</Link>
-                <Link to="/categories">Категории</Link>
-                <Link to="/products">Все продукты</Link>
-                <Link to="/promotions">Все акции</Link>
-            </nav>
-            <div style={styles.cart}>
-                <Link to="/cart">
-                    <img src="/path/to/cart-icon.png" alt="Cart" />
-                    {cartItemsCount > 0 && <span style={styles.cartCount}>{cartItemsCount}</span>}
-                </Link>
+  const cartItems = useSelector((state) => state.cart.items);
+
+ 
+  const calculateTotalItems = () => {
+    return cartItems.reduce((total, item) => total + item.quantity, 0);
+  };
+
+  const totalItems = calculateTotalItems();
+
+  return (
+    <header className="header">
+      <div className="header__logo">
+        <Link to="/pages/home">
+          <img src={logo} alt="Logo" />
+        </Link>
+      </div>
+      <nav className="header__nav">
+        <Link to="/pages/home" className="header__link">Main Page</Link>
+        <Link to="/pages/categories" className="header__link">Categories</Link>
+        <Link to="/pages/allProductsPage" className="header__link">All products</Link>
+        <Link to="/pages/salePage" className="header__link">All sales</Link>
+      </nav>
+      <div className="header__cart">
+        <Link to="/cart" className="cart-icon-container">
+          <img src={cart_icon} alt="Cart" className="cartIcon"/>
+          {totalItems > 0 && (
+            <div className="cartIcon">
+              <span className="cartItemCount">{totalItems}</span>
             </div>
-        </header>
-    );
-};
-
-const styles = {
-    header: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: '10px 20px',
-        backgroundColor: '#f8f9fa',
-    },
-    logo: {
-        height: '50px',
-    },
-    nav: {
-        display: 'flex',
-        gap: '20px',
-    },
-    cart: {
-        position: 'relative',
-    },
-    cartCount: {
-        position: 'absolute',
-        top: '-5px',
-        right: '-10px',
-        background: 'red',
-        borderRadius: '50%',
-        color: 'white',
-        padding: '5px',
-    },
+          )}
+        </Link>
+        <ThemeToggleButton /> 
+      </div>
+    </header>
+  );
 };
 
 export default Header;

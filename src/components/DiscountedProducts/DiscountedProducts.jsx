@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useNavigate} from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import CustomButton from '../button/CustomButton';
 import Modal from '../customModal/CustomModal'; 
@@ -20,6 +20,7 @@ const DiscountedProducts = () => {
   const dispatch = useDispatch();
   const location = useLocation();
 
+  // Фетчим данные с сервера
   useEffect(() => {
     const fetchProducts = async () => {
       try {
@@ -39,6 +40,7 @@ const DiscountedProducts = () => {
     fetchProducts();
   }, []);
 
+  // Фильтры и сортировка продуктов
   useEffect(() => {
     filterAndSortProducts();
   }, [priceRange, discountedOnly, sortOrder, products]);
@@ -68,8 +70,14 @@ const DiscountedProducts = () => {
     return description.length > 100 ? description.substring(0, 100) + '...' : description;
   };
 
+  // Обработка изменений диапазона цен, не допускаем отрицательные числа
   const handlePriceRangeChange = (e) => {
     const { name, value } = e.target;
+
+    if (value < 0) {
+      return; // Если введено отрицательное значение, ничего не делаем
+    }
+
     setPriceRange(prev => ({ ...prev, [name]: value }));
   };
 
@@ -81,6 +89,7 @@ const DiscountedProducts = () => {
     setSortOrder(e.target.value);
   };
 
+  // Фильтрация и сортировка продуктов
   const filterAndSortProducts = () => {
     let result = [...products];
 
@@ -101,8 +110,6 @@ const DiscountedProducts = () => {
       result = result.sort((a, b) => (a.discont_price || a.price) - (b.discont_price || b.price));
     } else if (sortOrder === 'price_high_low') {
       result = result.sort((a, b) => (b.discont_price || b.price) - (a.discont_price || a.price));
-    } else if (sortOrder === 'newest') {
-      result = result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     }
 
     setFilteredProducts(result);
@@ -132,6 +139,8 @@ const DiscountedProducts = () => {
         </Link>
       </div>
       <h3>Discounted Products</h3>
+
+      {/* Фильтр цен и сортировка */}
       <div className="filterBar">
         <div className="filterSection">
           <p>Price</p>
@@ -141,6 +150,7 @@ const DiscountedProducts = () => {
             placeholder="from"
             value={priceRange.min}
             onChange={handlePriceRangeChange}
+            min="0"  // Ограничение на отрицательные числа
           />
           <input
             type="number"
@@ -148,6 +158,7 @@ const DiscountedProducts = () => {
             placeholder="to"
             value={priceRange.max}
             onChange={handlePriceRangeChange}
+            min="0"  // Ограничение на отрицательные числа
           />
           <p>Sorted</p>
           <select value={sortOrder} onChange={handleSortOrderChange}>
@@ -159,6 +170,7 @@ const DiscountedProducts = () => {
         </div>
       </div>
 
+      {/* Сетка продуктов */}
       <div className="productGrid">
         {filteredProducts.length > 0 ? (
           filteredProducts.map((product) => (
@@ -167,8 +179,13 @@ const DiscountedProducts = () => {
               className="productItem"
               onClick={(e) => handleProductClick(product.id, e)}
             >
+              {/* Загрузка изображения */}
               {product.image ? (
-                <img src={`http://localhost:3333${product.image}`} alt={product.title} className="productImage" />
+                <img 
+                  src={product.image.startsWith('http') ? product.image : `http://localhost:3333${product.image}`} 
+                  alt={product.title} 
+                  className="productImage" 
+                />
               ) : (
                 <div className="placeholderImage">No Image</div>
               )}
@@ -214,10 +231,9 @@ const DiscountedProducts = () => {
           footer: (
             <div className="modalFooter">
               <button onClick={goToCart} className="modalButton">Go to Cart</button>
-              
             </div>
           )
-         }}
+        }}
       />
     </div>
   );

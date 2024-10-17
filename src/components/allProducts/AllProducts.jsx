@@ -96,12 +96,15 @@ const AllProducts = () => {
       result = result.filter(product => product.discont_price);
     }
 
+      // Сортировка по цене и алфавиту
     if (sortOrder === 'price_low_high') {
       result = result.sort((a, b) => (a.discont_price || a.price) - (b.discont_price || b.price));
     } else if (sortOrder === 'price_high_low') {
       result = result.sort((a, b) => (b.discont_price || b.price) - (a.discont_price || a.price));
-    } else if (sortOrder === 'newest') {
-      result = result.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    } else if (sortOrder === 'az') {
+      result = result.sort((a, b) => a.title.localeCompare(b.title));
+    } else if (sortOrder === 'za') {
+      result = result.sort((a, b) => b.title.localeCompare(a.title));
     }
 
     setFilteredProducts(result);
@@ -144,6 +147,7 @@ const AllProducts = () => {
             placeholder="from"
             value={priceRange.min}
             onChange={handlePriceRangeChange}
+            min="0"
           />
           <input className='filterPriceInput'
             type="number"
@@ -151,6 +155,7 @@ const AllProducts = () => {
             placeholder="to"
             value={priceRange.max}
             onChange={handlePriceRangeChange}
+             min="0"
           />
           <label className='filterCheckBox'>
             Discounted items
@@ -166,6 +171,8 @@ const AllProducts = () => {
             <option value="newest">newest</option>
             <option value="price_low_high">price: Low to High</option>
             <option value="price_high_low">price: High to Low</option>
+            <option value="az">A-Z</option>
+            <option value="za">Z-A</option>
           </select>
         </div>
       </div>
